@@ -26,7 +26,7 @@ type SortKey = "id" | "name" | "type" | "traffic" | "pedestrians" | "status";
 
 
 function BillboardsPage() {
-  const [loading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
   const [mode, setMode] = useState<Mode>("traffic");
   const [billboards, setBillboards] = useState<Billboard[]>([]);
   const [selected, setSelected] = useState<Billboard | null>(null);
@@ -75,9 +75,6 @@ function BillboardsPage() {
     [billboards, mode],
   );
 
-  const totalActive = billboards.filter((b) => b.status === "Active").length;
-  const totalCars = billboards.reduce((s, b) => s + b.traffic, 0);
-  const totalPed = billboards.reduce((s, b) => s + b.pedestrians, 0);
   const top = useMemo(
     () => [...visible].sort((a, b) => b[mode === "cv" ? "pedestrians" : "traffic"] - a[mode === "cv" ? "pedestrians" : "traffic"])[0],
     [visible, mode],
