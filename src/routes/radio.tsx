@@ -7,6 +7,7 @@ import { KpiCard } from "@/components/KpiCard";
 import { Skeleton } from "@/components/Skeleton";
 import { RadioPlayer } from "@/components/RadioPlayer";
 import { AudiencePills } from "@/components/radio/AudiencePills";
+import { CampaignHitChecker } from "@/components/CampaignHitChecker";
 import { generateRadioData, RADIO_STREAMS } from "@/lib/mockData";
 import { TUNISIA_MAP_PROPS, TUNISIA_TILE_PROPS } from "@/lib/tunisia";
 
