@@ -222,6 +222,8 @@ function RadioPage() {
             Click any governorate on the map to view its radio stations
           </div>
         )}
+
+        <CampaignHitChecker medium="Radio" />
       </main>
 
       <RadioPlayer
