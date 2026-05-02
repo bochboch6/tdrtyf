@@ -1,11 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { MapContainer, TileLayer, CircleMarker, Tooltip as LTooltip } from "react-leaflet";
-import { Headphones, MapPin, Radio as RadioIcon, X } from "lucide-react";
+import { Headphones, MapPin, Radio as RadioIcon, X, Play } from "lucide-react";
 import { AppHeader } from "@/components/AppHeader";
 import { KpiCard } from "@/components/KpiCard";
 import { Skeleton } from "@/components/Skeleton";
-import { generateRadioData } from "@/lib/mockData";
+import { RadioPlayer } from "@/components/RadioPlayer";
+import { AudiencePills } from "@/components/radio/AudiencePills";
+import { generateRadioData, RADIO_STREAMS } from "@/lib/mockData";
+import { TUNISIA_MAP_PROPS, TUNISIA_TILE_PROPS } from "@/lib/tunisia";
 
 export const Route = createFileRoute("/radio")({
   head: () => ({
@@ -21,10 +24,12 @@ export const Route = createFileRoute("/radio")({
 
 function RadioPage() {
   const [loading, setLoading] = useState(true);
-  const [data, setData] = useState(() => generateRadioData());
+  const [data, setData] = useState<ReturnType<typeof generateRadioData>>([]);
   const [selected, setSelected] = useState<string | null>(null);
+  const [player, setPlayer] = useState<{ name: string; url: string } | null>(null);
 
   useEffect(() => {
+    setData(generateRadioData());
     const t = setTimeout(() => setLoading(false), 600);
     return () => clearTimeout(t);
   }, []);
@@ -36,12 +41,11 @@ function RadioPage() {
 
   const total = data.reduce((s, g) => s + g.totalListeners, 0);
   const topGov = [...data].sort((a, b) => b.totalListeners - a.totalListeners)[0];
-  const allStations = data.flatMap((g) => g.stations.map((s) => ({ ...s, gov: g.name })));
   const topStation = useMemo(() => {
     const agg = new Map<string, number>();
-    allStations.forEach((s) => agg.set(s.name, (agg.get(s.name) ?? 0) + s.listeners));
+    data.forEach((g) => g.stations.forEach((s) => agg.set(s.name, (agg.get(s.name) ?? 0) + s.listeners)));
     return [...agg.entries()].sort((a, b) => b[1] - a[1])[0];
-  }, [data]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [data]);
 
   const max = Math.max(...data.map((d) => d.totalListeners));
   const selectedGov = data.find((g) => g.name === selected);
@@ -54,8 +58,13 @@ function RadioPage() {
     return "oklch(0.3 0.05 25)";
   };
 
+  const playStation = (name: string) => {
+    const url = RADIO_STREAMS[name] ?? "";
+    setPlayer({ name, url });
+  };
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-24">
       <AppHeader />
       <main className="mx-auto max-w-[1600px] space-y-6 px-6 py-6">
         <div>
@@ -90,115 +99,120 @@ function RadioPage() {
           )}
         </div>
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_400px]">
-          <div className="overflow-hidden rounded-xl border border-border bg-card">
-            <div className="flex items-center justify-between border-b border-border px-5 py-3">
-              <h3 className="text-sm font-semibold">Tunisia listenership map</h3>
-              <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
-                <span className="flex items-center gap-1.5">
-                  <span className="h-2.5 w-2.5 rounded-full bg-[oklch(0.3_0.05_25)]" /> Low
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <span className="h-2.5 w-2.5 rounded-full bg-[oklch(0.5_0.18_25)]" /> Med
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <span className="h-2.5 w-2.5 rounded-full bg-[oklch(0.62_0.22_25)]" /> High
-                </span>
-              </div>
-            </div>
-            <div className="h-[640px]">
-              <MapContainer center={[34.5, 9.5]} zoom={6} className="h-full w-full" zoomControl={true}>
-                <TileLayer
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                  attribution="&copy; OpenStreetMap"
-                />
-                {data.map((g) => (
-                  <CircleMarker
-                    key={g.name}
-                    center={[g.lat, g.lng]}
-                    radius={8 + (g.totalListeners / max) * 18}
-                    pathOptions={{
-                      color: colorFor(g.totalListeners),
-                      fillColor: colorFor(g.totalListeners),
-                      fillOpacity: 0.65,
-                      weight: 2,
-                    }}
-                    eventHandlers={{ click: () => setSelected(g.name) }}
-                  >
-                    <LTooltip direction="top" offset={[0, -8]} opacity={1}>
-                      <div style={{ fontSize: 12 }}>
-                        <strong>{g.name}</strong>
-                        <br />
-                        {g.totalListeners.toLocaleString("en-US")} listeners
-                      </div>
-                    </LTooltip>
-                  </CircleMarker>
-                ))}
-              </MapContainer>
+        <div className="overflow-hidden rounded-xl border border-border bg-card">
+          <div className="flex items-center justify-between border-b border-border px-5 py-3">
+            <h3 className="text-sm font-semibold">Tunisia listenership map</h3>
+            <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
+              <span className="flex items-center gap-1.5">
+                <span className="h-2.5 w-2.5 rounded-full bg-[oklch(0.3_0.05_25)]" /> Low
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="h-2.5 w-2.5 rounded-full bg-[oklch(0.5_0.18_25)]" /> Med
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="h-2.5 w-2.5 rounded-full bg-[oklch(0.62_0.22_25)]" /> High
+              </span>
             </div>
           </div>
-
-          <div className="rounded-xl border border-border bg-card">
-            <div className="flex items-center justify-between border-b border-border px-5 py-3">
-              <h3 className="text-sm font-semibold">
-                {selectedGov ? selectedGov.name : "Select a governorate"}
-              </h3>
-              {selectedGov && (
-                <button
-                  onClick={() => setSelected(null)}
-                  className="rounded p-1 text-muted-foreground hover:bg-secondary hover:text-foreground"
+          <div className="h-[560px]">
+            <MapContainer {...TUNISIA_MAP_PROPS} className="h-full w-full" zoomControl>
+              <TileLayer {...TUNISIA_TILE_PROPS} />
+              {data.map((g) => (
+                <CircleMarker
+                  key={g.name}
+                  center={[g.lat, g.lng]}
+                  radius={8 + (g.totalListeners / max) * 18}
+                  pathOptions={{
+                    color: colorFor(g.totalListeners),
+                    fillColor: colorFor(g.totalListeners),
+                    fillOpacity: selected === g.name ? 0.95 : 0.65,
+                    weight: selected === g.name ? 3 : 2,
+                  }}
+                  eventHandlers={{ click: () => setSelected(g.name) }}
                 >
-                  <X className="h-4 w-4" />
-                </button>
-              )}
-            </div>
-            <div className="max-h-[640px] overflow-y-auto p-4">
-              {!selectedGov && (
-                <div className="flex h-[200px] flex-col items-center justify-center text-center text-sm text-muted-foreground">
-                  <MapPin className="mb-2 h-8 w-8 opacity-40" />
-                  Click any governorate on the map to view its radio stations
-                </div>
-              )}
-              {selectedGov && (
-                <div className="space-y-3 animate-fade-in">
-                  <div className="rounded-lg bg-primary/10 p-3 text-center">
-                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                      Total listeners
+                  <LTooltip direction="top" offset={[0, -8]} opacity={1}>
+                    <div style={{ fontSize: 12 }}>
+                      <strong>{g.name}</strong>
+                      <br />
+                      {g.totalListeners.toLocaleString("en-US")} listeners
                     </div>
-                    <div className="text-2xl font-bold tabular-nums text-primary">
-                      {selectedGov.totalListeners.toLocaleString("en-US")}
-                    </div>
-                  </div>
-                  {selectedGov.stations.map((s, i) => {
-                    const maxL = selectedGov.stations[0].listeners;
-                    return (
-                      <div key={s.name} className="rounded-lg border border-border bg-background/50 p-3">
-                        <div className="mb-1.5 flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs font-mono text-muted-foreground">
-                              #{i + 1}
-                            </span>
-                            <span className="text-sm font-medium">{s.name}</span>
-                          </div>
-                          <span className="font-mono text-xs tabular-nums text-muted-foreground">
-                            {s.listeners.toLocaleString("en-US")}
-                          </span>
-                        </div>
-                        <div className="h-1.5 overflow-hidden rounded-full bg-secondary">
-                          <div
-                            className="h-full rounded-full bg-primary transition-all duration-700"
-                            style={{ width: `${(s.listeners / maxL) * 100}%` }}
-                          />
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
+                  </LTooltip>
+                </CircleMarker>
+              ))}
+            </MapContainer>
           </div>
         </div>
+
+        {/* Inline expandable governorate panel BELOW the map */}
+        {selectedGov && (
+          <div className="rounded-xl border border-border bg-card animate-fade-in">
+            <div className="flex items-center justify-between border-b border-border px-5 py-3">
+              <div className="flex items-center gap-3">
+                <div className="flex h-9 w-9 items-center justify-center rounded-md bg-primary/15 text-primary">
+                  <MapPin className="h-4 w-4" />
+                </div>
+                <div>
+                  <h3 className="text-base font-semibold">{selectedGov.name}</h3>
+                  <p className="text-[11px] text-muted-foreground">
+                    {selectedGov.totalListeners.toLocaleString("en-US")} total listeners ·{" "}
+                    {selectedGov.stations.length} stations
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setSelected(null)}
+                className="rounded p-1.5 text-muted-foreground hover:bg-secondary hover:text-foreground"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <div className="grid grid-cols-1 gap-3 p-5 md:grid-cols-2 xl:grid-cols-3">
+              {selectedGov.stations.map((s, i) => {
+                const maxL = selectedGov.stations[0].listeners;
+                return (
+                  <div key={s.name} className="rounded-lg border border-border bg-background/50 p-4">
+                    <div className="mb-2 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono text-[11px] text-muted-foreground">#{i + 1}</span>
+                        <span className="text-sm font-semibold">{s.name}</span>
+                      </div>
+                      <span className="font-mono text-xs tabular-nums text-muted-foreground">
+                        {s.listeners.toLocaleString("en-US")}
+                      </span>
+                    </div>
+                    <div className="h-1.5 overflow-hidden rounded-full bg-secondary">
+                      <div
+                        className="h-full rounded-full bg-primary transition-all duration-700"
+                        style={{ width: `${(s.listeners / maxL) * 100}%` }}
+                      />
+                    </div>
+                    <AudiencePills audience={s.audience} />
+                    <button
+                      onClick={() => playStation(s.name)}
+                      className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-md border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
+                    >
+                      <Play className="h-3 w-3" /> 🎧 Listen Live
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {!selectedGov && (
+          <div className="rounded-xl border border-dashed border-border bg-card/40 p-8 text-center text-sm text-muted-foreground">
+            <MapPin className="mx-auto mb-2 h-6 w-6 opacity-40" />
+            Click any governorate on the map to view its radio stations
+          </div>
+        )}
       </main>
+
+      <RadioPlayer
+        stationName={player?.name ?? null}
+        streamUrl={player?.url ?? null}
+        onClose={() => setPlayer(null)}
+      />
     </div>
   );
 }

@@ -5,14 +5,15 @@ import { useEffect, useState } from "react";
 const NAV = [
   { to: "/", label: "TV", icon: Tv },
   { to: "/radio", label: "Radio", icon: Radio },
-  { to: "/panneaux", label: "Panneaux", icon: Megaphone },
+  { to: "/billboards", label: "Billboards", icon: Megaphone },
 ] as const;
 
 export function AppHeader() {
   const { pathname } = useLocation();
-  const [now, setNow] = useState(new Date());
+  const [now, setNow] = useState<Date | null>(null);
 
   useEffect(() => {
+    setNow(new Date());
     const id = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(id);
   }, []);
@@ -55,10 +56,10 @@ export function AppHeader() {
             <span className="absolute h-2 w-2 animate-ping rounded-full bg-primary opacity-60" />
             <span className="h-2 w-2 rounded-full bg-primary" />
           </div>
-          <div className="font-mono text-sm">
-            <div className="font-semibold">{now.toLocaleTimeString("en-GB")}</div>
+          <div className="font-mono text-sm" suppressHydrationWarning>
+            <div className="font-semibold">{now ? now.toLocaleTimeString("en-GB") : "--:--:--"}</div>
             <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
-              {now.toLocaleDateString("en-GB", { weekday: "short", day: "2-digit", month: "short" })}
+              {now ? now.toLocaleDateString("en-GB", { weekday: "short", day: "2-digit", month: "short" }) : "—"}
             </div>
           </div>
         </div>

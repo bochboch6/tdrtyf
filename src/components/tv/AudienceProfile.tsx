@@ -104,7 +104,10 @@ export function AudienceProfile() {
             max={24}
             value={hour}
             onChange={(e) => setHour(Number(e.target.value))}
-            className="h-2 w-full cursor-pointer appearance-none rounded-full bg-secondary accent-[oklch(0.62_0.22_25)]"
+            className="audience-slider w-full"
+            style={{
+              ["--pct" as any]: `${((hour - 6) / 18) * 100}%`,
+            }}
           />
           <div className="mt-1 flex justify-between text-[10px] text-muted-foreground">
             <span>6h</span>
