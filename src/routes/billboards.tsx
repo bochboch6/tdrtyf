@@ -2,12 +2,10 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { MapContainer, TileLayer, CircleMarker, Popup } from "react-leaflet";
 import {
-  Camera, Car, Eye, Megaphone, Download, Trophy, Plus, X,
+  Camera, Car, Eye, Download, Trophy, Plus, X,
   Sparkles, AlertTriangle, Activity, ArrowUpDown,
 } from "lucide-react";
 import { AppHeader } from "@/components/AppHeader";
-import { KpiCard } from "@/components/KpiCard";
-import { Skeleton } from "@/components/Skeleton";
 import { generateBillboards, exportToCSV, type Billboard } from "@/lib/mockData";
 import { TUNISIA_MAP_PROPS, TUNISIA_TILE_PROPS } from "@/lib/tunisia";
 
@@ -28,7 +26,7 @@ type SortKey = "id" | "name" | "type" | "traffic" | "pedestrians" | "status";
 
 
 function BillboardsPage() {
-  const [loading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
   const [mode, setMode] = useState<Mode>("traffic");
   const [billboards, setBillboards] = useState<Billboard[]>([]);
   const [selected, setSelected] = useState<Billboard | null>(null);
@@ -77,9 +75,6 @@ function BillboardsPage() {
     [billboards, mode],
   );
 
-  const totalActive = billboards.filter((b) => b.status === "Active").length;
-  const totalCars = billboards.reduce((s, b) => s + b.traffic, 0);
-  const totalPed = billboards.reduce((s, b) => s + b.pedestrians, 0);
   const top = useMemo(
     () => [...visible].sort((a, b) => b[mode === "cv" ? "pedestrians" : "traffic"] - a[mode === "cv" ? "pedestrians" : "traffic"])[0],
     [visible, mode],
@@ -143,24 +138,6 @@ function BillboardsPage() {
               Export CSV
             </button>
           </div>
-        </div>
-
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {loading ? (
-            [0, 1, 2, 3].map((i) => <Skeleton key={i} className="h-[112px]" />)
-          ) : (
-            <>
-              <KpiCard label="Active billboards" value={`${totalActive}/${billboards.length}`} icon={Megaphone} />
-              <KpiCard label="Daily car traffic" value={totalCars.toLocaleString("en-US")} trend={3.2} icon={Car} />
-              <KpiCard label="Pedestrian detections today" value={totalPed.toLocaleString("en-US")} trend={1.9} icon={Eye} />
-              <KpiCard
-                label={mode === "cv" ? "Top CV billboard" : "Top performing billboard"}
-                value={top?.id ?? "—"}
-                sub={top ? `${(mode === "cv" ? top.pedestrians : top.traffic).toLocaleString("en-US")} ${mode === "cv" ? "detections" : "cars/day"}` : ""}
-                icon={Trophy}
-              />
-            </>
-          )}
         </div>
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_420px]">
@@ -229,15 +206,14 @@ function BillboardsPage() {
               </div>
             )}
 
-            {/* Floating + button */}
-            {mode === "traffic" && (
-              <button
-                onClick={() => setShowAdd(true)}
-                className="absolute bottom-5 right-5 z-[400] flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-2xl shadow-primary/40 transition-transform hover:scale-110 pulse-red"
-              >
-                <Plus className="h-6 w-6" />
-              </button>
-            )}
+            {/* Floating + button (always visible) */}
+            <button
+              onClick={() => setShowAdd(true)}
+              title={mode === "cv" ? "Add a CV-equipped billboard" : "Add a billboard"}
+              className="absolute bottom-5 right-5 z-[400] flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-2xl shadow-primary/40 transition-transform hover:scale-110 pulse-red"
+            >
+              <Plus className="h-6 w-6" />
+            </button>
           </div>
 
           {/* Side summary table */}
@@ -351,7 +327,7 @@ function BillboardsPage() {
       )}
 
       {/* Add billboard modal */}
-      {showAdd && <AddBillboardModal onClose={() => setShowAdd(false)} onAdd={addBillboard} />}
+      {showAdd && <AddBillboardModal onClose={() => setShowAdd(false)} onAdd={addBillboard} forceCamera={mode === "cv"} />}
     </div>
   );
 }
@@ -469,16 +445,17 @@ function CvDrawer({ billboard, onClose, onPosterChange }: { billboard: Billboard
 function AddBillboardModal({
   onClose,
   onAdd,
+  forceCamera = false,
 }: {
   onClose: () => void;
   onAdd: (b: Omit<Billboard, "pedestrians" | "detectionRate" | "status" | "size" | "lastUpdated">) => void;
+  forceCamera?: boolean;
 }) {
   const [type, setType] = useState<"digital" | "paper">("digital");
   const [name, setName] = useState("");
   const [lat, setLat] = useState("36.8");
   const [lng, setLng] = useState("10.18");
-  const [traffic, setTraffic] = useState("20000");
-  const [hasCamera, setHasCamera] = useState(false);
+  const [hasCamera, setHasCamera] = useState(forceCamera);
   const idRef = useRef(`BB-${Math.floor(Math.random() * 900 + 100)}`);
 
   const submit = (e: React.FormEvent) => {
@@ -491,7 +468,7 @@ function AddBillboardModal({
       lat: Number(lat),
       lng: Number(lng),
       type,
-      traffic: Number(traffic),
+      traffic: Math.floor(15000 + Math.random() * 25000),
       hasCamera,
     });
     onClose();
@@ -544,10 +521,6 @@ function AddBillboardModal({
               <label className="mb-1.5 block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Longitude</label>
               <input value={lng} onChange={(e) => setLng(e.target.value)} className="w-full rounded-md border border-border bg-background px-3 py-2 font-mono text-sm focus:border-primary focus:outline-none" />
             </div>
-          </div>
-          <div>
-            <label className="mb-1.5 block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Daily traffic estimate</label>
-            <input value={traffic} onChange={(e) => setTraffic(e.target.value)} type="number" className="w-full rounded-md border border-border bg-background px-3 py-2 font-mono text-sm focus:border-primary focus:outline-none" />
           </div>
           <label className="flex items-center gap-2 text-sm">
             <input type="checkbox" checked={hasCamera} onChange={(e) => setHasCamera(e.target.checked)} className="accent-[oklch(0.62_0.22_25)]" />

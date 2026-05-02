@@ -7,6 +7,7 @@ import { KpiCard } from "@/components/KpiCard";
 import { Skeleton } from "@/components/Skeleton";
 import { RadioPlayer } from "@/components/RadioPlayer";
 import { AudiencePills } from "@/components/radio/AudiencePills";
+import { CampaignHitChecker } from "@/components/CampaignHitChecker";
 import { generateRadioData, RADIO_STREAMS } from "@/lib/mockData";
 import { TUNISIA_MAP_PROPS, TUNISIA_TILE_PROPS } from "@/lib/tunisia";
 
@@ -200,12 +201,14 @@ function RadioPage() {
                       )}
                     </button>
                     {isOpen && <AudiencePills audience={s.audience} />}
-                    <button
-                      onClick={() => playStation(s.name)}
-                      className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-md border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
-                    >
-                      <Play className="h-3 w-3" /> 🎧 Listen Live
-                    </button>
+                    {isOpen && (
+                      <button
+                        onClick={() => playStation(s.name)}
+                        className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-md border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
+                      >
+                        <Play className="h-3 w-3" /> 🎧 Listen Live
+                      </button>
+                    )}
                   </div>
                 );
               })}
@@ -219,6 +222,8 @@ function RadioPage() {
             Click any governorate on the map to view its radio stations
           </div>
         )}
+
+        <CampaignHitChecker medium="Radio" />
       </main>
 
       <RadioPlayer
