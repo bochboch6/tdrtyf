@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 const NAV = [
   { to: "/", label: "TV", icon: Tv },
   { to: "/radio", label: "Radio", icon: Radio },
-  { to: "/panneaux", label: "Panneaux", icon: Megaphone },
+  { to: "/billboards", label: "Billboards", icon: Megaphone },
 ] as const;
 
 export function AppHeader() {
