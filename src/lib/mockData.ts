@@ -51,8 +51,12 @@ export function generateZappingSources() {
   });
 }
 
-export function generateAudienceProfile(channel: string, hour: number) {
-  const seed = channel.length + hour;
+export const DAYS_OF_WEEK = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] as const;
+export type DayOfWeek = (typeof DAYS_OF_WEEK)[number];
+
+export function generateAudienceProfile(channel: string, hour: number, day: DayOfWeek = "Mon") {
+  const dayIdx = DAYS_OF_WEEK.indexOf(day);
+  const seed = channel.length + hour + dayIdx * 1.7;
   const rand = (n: number) => ((Math.sin(seed * 9.7 + n) + 1) / 2);
   const ageRaw = [rand(1) * 30 + 10, rand(2) * 35 + 15, rand(3) * 30 + 20, rand(4) * 30 + 15];
   const ageTotal = ageRaw.reduce((a, b) => a + b, 0);
@@ -68,13 +72,13 @@ export function generateAudienceProfile(channel: string, hour: number) {
       { name: "45+", value: age[3] },
     ],
     sex: [
-      { name: "Hommes", value: sexH },
-      { name: "Femmes", value: 100 - sexH },
+      { name: "Men", value: sexH },
+      { name: "Women", value: 100 - sexH },
     ],
     income: [
-      { name: "Faible", value: incLow },
-      { name: "Moyen", value: incMed },
-      { name: "Élevé", value: 100 - incLow - incMed },
+      { name: "Low", value: incLow },
+      { name: "Middle", value: incMed },
+      { name: "High", value: 100 - incLow - incMed },
     ],
   };
 }

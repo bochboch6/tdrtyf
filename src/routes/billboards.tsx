@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { MapContainer, TileLayer, CircleMarker, Popup } from "react-leaflet";
 import {
   Camera, Car, Eye, Megaphone, Download, Trophy, Plus, X,
-  Sparkles, Bell, AlertTriangle, Activity, ArrowUpDown,
+  Sparkles, AlertTriangle, Activity, ArrowUpDown,
 } from "lucide-react";
 import { AppHeader } from "@/components/AppHeader";
 import { KpiCard } from "@/components/KpiCard";
@@ -35,6 +35,21 @@ function BillboardsPage() {
   const [showAdd, setShowAdd] = useState(false);
   const [sortKey, setSortKey] = useState<SortKey>("traffic");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
+  const [posterAlert, setPosterAlert] = useState<{ id: number; billboard: Billboard; time: string } | null>(null);
+
+  useEffect(() => {
+    if (!posterAlert) return;
+    const t = setTimeout(() => setPosterAlert(null), 6000);
+    return () => clearTimeout(t);
+  }, [posterAlert]);
+
+  const handlePosterChange = (b: Billboard) => {
+    setPosterAlert({
+      id: Date.now(),
+      billboard: b,
+      time: new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }),
+    });
+  };
 
   useEffect(() => {
     setBillboards(generateBillboards());
@@ -304,9 +319,35 @@ function BillboardsPage() {
         <BillboardRecommendation billboards={billboards} />
       </main>
 
+      {/* Top-of-page poster change toast */}
+      {posterAlert && (
+        <div className="fixed left-1/2 top-20 z-[500] w-[min(92vw,460px)] -translate-x-1/2 animate-fade-in">
+          <div className="flex items-start gap-3 rounded-lg border border-primary/60 bg-card/95 p-4 shadow-2xl shadow-primary/30 backdrop-blur">
+            <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground">
+              <AlertTriangle className="h-4 w-4" />
+            </div>
+            <div className="flex-1">
+              <div className="text-xs font-bold uppercase tracking-wider text-primary">Poster change detected</div>
+              <div className="mt-0.5 text-sm font-semibold text-foreground">
+                {posterAlert.billboard.id} · {posterAlert.billboard.name}
+              </div>
+              <div className="text-[11px] text-muted-foreground">
+                Computer vision flagged a creative swap at {posterAlert.time}
+              </div>
+            </div>
+            <button
+              onClick={() => setPosterAlert(null)}
+              className="rounded p-1 text-muted-foreground hover:bg-secondary hover:text-foreground"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* CV detection drawer */}
       {mode === "cv" && selected && selected.hasCamera && (
-        <CvDrawer billboard={selected} onClose={() => setSelected(null)} />
+        <CvDrawer billboard={selected} onClose={() => setSelected(null)} onPosterChange={handlePosterChange} />
       )}
 
       {/* Add billboard modal */}
@@ -340,30 +381,19 @@ function ModePill({ mode, onChange }: { mode: Mode; onChange: (m: Mode) => void 
   );
 }
 
-function CvDrawer({ billboard, onClose }: { billboard: Billboard; onClose: () => void }) {
+function CvDrawer({ billboard, onClose, onPosterChange }: { billboard: Billboard; onClose: () => void; onPosterChange: (b: Billboard) => void }) {
   const [pedCount, setPedCount] = useState(billboard.pedestrians);
   const [feedCount, setFeedCount] = useState(0);
-  const [alerts, setAlerts] = useState<{ id: number; text: string; time: string }[]>([
-    { id: 1, text: "Poster changed at 14:32", time: "14:32" },
-  ]);
 
   useEffect(() => {
     const id1 = setInterval(() => setPedCount((c) => c + 1), 3000);
     const id2 = setInterval(() => setFeedCount(Math.floor(2 + Math.random() * 9)), 1500);
+    // Occasional poster-change detection event
     const id3 = setInterval(() => {
-      const messages = [
-        "Detection spike detected",
-        "Camera focus auto-adjusted",
-        "Traffic surge: +18%",
-        "Lighting condition: optimal",
-      ];
-      setAlerts((a) => [
-        { id: Date.now(), text: messages[Math.floor(Math.random() * messages.length)], time: new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }) },
-        ...a,
-      ].slice(0, 6));
-    }, 9000);
+      if (Math.random() < 0.35) onPosterChange(billboard);
+    }, 12000);
     return () => { clearInterval(id1); clearInterval(id2); clearInterval(id3); };
-  }, [billboard.id]);
+  }, [billboard, onPosterChange]);
 
   return (
     <div className="fixed inset-y-0 right-0 z-[450] w-[380px] max-w-full overflow-y-auto border-l border-border bg-card shadow-2xl animate-fade-in">
@@ -429,27 +459,6 @@ function CvDrawer({ billboard, onClose }: { billboard: Billboard; onClose: () =>
               className="h-full rounded-full bg-gradient-to-r from-primary to-[oklch(0.78_0.18_75)] transition-all duration-700"
               style={{ width: `${billboard.detectionRate}%` }}
             />
-          </div>
-        </div>
-
-        {/* Alerts */}
-        <div className="rounded-lg border border-border bg-background/50 p-4">
-          <div className="mb-3 flex items-center gap-2">
-            <Bell className="h-4 w-4 text-[oklch(0.78_0.16_75)]" />
-            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Alerts
-            </span>
-          </div>
-          <div className="space-y-2">
-            {alerts.map((a) => (
-              <div key={a.id} className="flex items-start gap-2 rounded-md border border-[oklch(0.78_0.16_75)]/30 bg-[oklch(0.78_0.16_75)]/5 p-2 text-xs animate-fade-in">
-                <AlertTriangle className="mt-0.5 h-3 w-3 flex-shrink-0 text-[oklch(0.78_0.16_75)]" />
-                <div className="flex-1">
-                  <div>{a.text}</div>
-                  <div className="text-[10px] text-muted-foreground">{a.time}</div>
-                </div>
-              </div>
-            ))}
           </div>
         </div>
       </div>

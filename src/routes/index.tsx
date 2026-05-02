@@ -4,15 +4,15 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   LineChart, Line, ReferenceLine, Cell,
 } from "recharts";
-import { Eye, Tv, Zap, Clock, Download } from "lucide-react";
+import { Eye, Tv, Zap, Download } from "lucide-react";
 import { AppHeader } from "@/components/AppHeader";
 import { KpiCard } from "@/components/KpiCard";
 import { Skeleton } from "@/components/Skeleton";
 import { AudienceProfile } from "@/components/tv/AudienceProfile";
-import { ZappingSourceBars } from "@/components/tv/ZappingSourceBars";
 import { AdRecommendationPanel } from "@/components/tv/AdRecommendationPanel";
+import { AIAdvisorChat } from "@/components/tv/AIAdvisorChat";
 import {
-  generateChannelViewers, generateZappingData, generateZappingSources, exportToCSV,
+  generateChannelViewers, generateZappingData, exportToCSV,
 } from "@/lib/mockData";
 
 export const Route = createFileRoute("/")({
@@ -31,13 +31,11 @@ function TvPage() {
   const [loading, setLoading] = useState(true);
   const [channels, setChannels] = useState<ReturnType<typeof generateChannelViewers>>([]);
   const [zaps, setZaps] = useState<ReturnType<typeof generateZappingData>>([]);
-  const [zapSources, setZapSources] = useState<ReturnType<typeof generateZappingSources>>([]);
   const [currentHour, setCurrentHour] = useState(20);
 
   useEffect(() => {
     setChannels(generateChannelViewers());
     setZaps(generateZappingData());
-    setZapSources(generateZappingSources());
     setCurrentHour(new Date().getHours());
     const t = setTimeout(() => setLoading(false), 600);
     return () => clearTimeout(t);
@@ -73,10 +71,10 @@ function TvPage() {
           </button>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           {loading ? (
             <>
-              {[0, 1, 2, 3].map((i) => (
+              {[0, 1, 2].map((i) => (
                 <Skeleton key={i} className="h-[112px]" />
               ))}
             </>
@@ -85,7 +83,6 @@ function TvPage() {
               <KpiCard label="Total viewers live" value={total.toLocaleString("en-US")} trend={2.4} icon={Eye} />
               <KpiCard label="Most watched now" value={top.name} sub={`${top.viewers.toLocaleString("en-US")} viewers`} icon={Tv} />
               <KpiCard label="Peak zapping hour" value={peakZap.hour} sub={`${peakZap.zaps.toLocaleString("en-US")} zaps`} icon={Zap} />
-              <KpiCard label="Avg viewing duration" value="42m" sub="per session" trend={-1.2} icon={Clock} />
             </>
           )}
         </div>
@@ -126,7 +123,7 @@ function TvPage() {
                 <p className="text-xs text-muted-foreground">Channel switches per hour</p>
               </div>
               <div className="text-[11px] text-muted-foreground">
-                Now: <span className="font-mono text-primary">{currentHour}h00</span>
+                Now: <span className="font-mono text-primary">{currentHour}:00</span>
               </div>
             </div>
             <div className="h-[320px]">
@@ -150,14 +147,15 @@ function TvPage() {
           </div>
         </div>
 
-        {/* Zapping source by hour */}
-        <ZappingSourceBars data={zapSources} />
-
-        {/* AI recommendation panel */}
-        <AdRecommendationPanel />
-
+        {/* Audience profile (now first) */}
         <AudienceProfile />
+
+        {/* AI recommendation panel (now second) */}
+        <AdRecommendationPanel />
       </main>
+
+      {/* Floating AI assistant chatbot */}
+      <AIAdvisorChat />
     </div>
   );
 }

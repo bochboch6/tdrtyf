@@ -26,6 +26,7 @@ function RadioPage() {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<ReturnType<typeof generateRadioData>>([]);
   const [selected, setSelected] = useState<string | null>(null);
+  const [expandedStation, setExpandedStation] = useState<string | null>(null);
   const [player, setPlayer] = useState<{ name: string; url: string } | null>(null);
 
   useEffect(() => {
@@ -169,24 +170,36 @@ function RadioPage() {
             <div className="grid grid-cols-1 gap-3 p-5 md:grid-cols-2 xl:grid-cols-3">
               {selectedGov.stations.map((s, i) => {
                 const maxL = selectedGov.stations[0].listeners;
+                const isOpen = expandedStation === s.name;
                 return (
                   <div key={s.name} className="rounded-lg border border-border bg-background/50 p-4">
-                    <div className="mb-2 flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="font-mono text-[11px] text-muted-foreground">#{i + 1}</span>
-                        <span className="text-sm font-semibold">{s.name}</span>
+                    <button
+                      type="button"
+                      onClick={() => setExpandedStation(isOpen ? null : s.name)}
+                      className="w-full text-left"
+                    >
+                      <div className="mb-2 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono text-[11px] text-muted-foreground">#{i + 1}</span>
+                          <span className="text-sm font-semibold">{s.name}</span>
+                        </div>
+                        <span className="font-mono text-xs tabular-nums text-muted-foreground">
+                          {s.listeners.toLocaleString("en-US")}
+                        </span>
                       </div>
-                      <span className="font-mono text-xs tabular-nums text-muted-foreground">
-                        {s.listeners.toLocaleString("en-US")}
-                      </span>
-                    </div>
-                    <div className="h-1.5 overflow-hidden rounded-full bg-secondary">
-                      <div
-                        className="h-full rounded-full bg-primary transition-all duration-700"
-                        style={{ width: `${(s.listeners / maxL) * 100}%` }}
-                      />
-                    </div>
-                    <AudiencePills audience={s.audience} />
+                      <div className="h-1.5 overflow-hidden rounded-full bg-secondary">
+                        <div
+                          className="h-full rounded-full bg-primary transition-all duration-700"
+                          style={{ width: `${(s.listeners / maxL) * 100}%` }}
+                        />
+                      </div>
+                      {!isOpen && (
+                        <div className="mt-2 text-[10px] uppercase tracking-wider text-muted-foreground/70">
+                          Click to view audience profile
+                        </div>
+                      )}
+                    </button>
+                    {isOpen && <AudiencePills audience={s.audience} />}
                     <button
                       onClick={() => playStation(s.name)}
                       className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-md border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
