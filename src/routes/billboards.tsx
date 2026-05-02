@@ -206,15 +206,14 @@ function BillboardsPage() {
               </div>
             )}
 
-            {/* Floating + button */}
-            {mode === "traffic" && (
-              <button
-                onClick={() => setShowAdd(true)}
-                className="absolute bottom-5 right-5 z-[400] flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-2xl shadow-primary/40 transition-transform hover:scale-110 pulse-red"
-              >
-                <Plus className="h-6 w-6" />
-              </button>
-            )}
+            {/* Floating + button (always visible) */}
+            <button
+              onClick={() => setShowAdd(true)}
+              title={mode === "cv" ? "Add a CV-equipped billboard" : "Add a billboard"}
+              className="absolute bottom-5 right-5 z-[400] flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-2xl shadow-primary/40 transition-transform hover:scale-110 pulse-red"
+            >
+              <Plus className="h-6 w-6" />
+            </button>
           </div>
 
           {/* Side summary table */}
