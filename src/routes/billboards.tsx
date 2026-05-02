@@ -143,24 +143,6 @@ function BillboardsPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {loading ? (
-            [0, 1, 2, 3].map((i) => <Skeleton key={i} className="h-[112px]" />)
-          ) : (
-            <>
-              <KpiCard label="Active billboards" value={`${totalActive}/${billboards.length}`} icon={Megaphone} />
-              <KpiCard label="Daily car traffic" value={totalCars.toLocaleString("en-US")} trend={3.2} icon={Car} />
-              <KpiCard label="Pedestrian detections today" value={totalPed.toLocaleString("en-US")} trend={1.9} icon={Eye} />
-              <KpiCard
-                label={mode === "cv" ? "Top CV billboard" : "Top performing billboard"}
-                value={top?.id ?? "—"}
-                sub={top ? `${(mode === "cv" ? top.pedestrians : top.traffic).toLocaleString("en-US")} ${mode === "cv" ? "detections" : "cars/day"}` : ""}
-                icon={Trophy}
-              />
-            </>
-          )}
-        </div>
-
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_420px]">
           <div className="relative overflow-hidden rounded-xl border border-border bg-card">
             <div className="flex items-center justify-between border-b border-border px-5 py-3">
