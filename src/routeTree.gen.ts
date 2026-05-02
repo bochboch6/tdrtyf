@@ -10,11 +10,17 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as RadioRouteImport } from './routes/radio'
+import { Route as BillboardsRouteImport } from './routes/billboards'
 import { Route as IndexRouteImport } from './routes/index'
 
 const RadioRoute = RadioRouteImport.update({
   id: '/radio',
   path: '/radio',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BillboardsRoute = BillboardsRouteImport.update({
+  id: '/billboards',
+  path: '/billboards',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -25,27 +31,31 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/billboards': typeof BillboardsRoute
   '/radio': typeof RadioRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/billboards': typeof BillboardsRoute
   '/radio': typeof RadioRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/billboards': typeof BillboardsRoute
   '/radio': typeof RadioRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/radio'
+  fullPaths: '/' | '/billboards' | '/radio'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/radio'
-  id: '__root__' | '/' | '/radio'
+  to: '/' | '/billboards' | '/radio'
+  id: '__root__' | '/' | '/billboards' | '/radio'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BillboardsRoute: typeof BillboardsRoute
   RadioRoute: typeof RadioRoute
 }
 
@@ -56,6 +66,13 @@ declare module '@tanstack/react-router' {
       path: '/radio'
       fullPath: '/radio'
       preLoaderRoute: typeof RadioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/billboards': {
+      id: '/billboards'
+      path: '/billboards'
+      fullPath: '/billboards'
+      preLoaderRoute: typeof BillboardsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -70,6 +87,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BillboardsRoute: BillboardsRoute,
   RadioRoute: RadioRoute,
 }
 export const routeTree = rootRouteImport

@@ -1,25 +1,19 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  LineChart,
-  Line,
-  ReferenceLine,
-  Cell,
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  LineChart, Line, ReferenceLine, Cell,
 } from "recharts";
 import { Eye, Tv, Zap, Clock, Download } from "lucide-react";
 import { AppHeader } from "@/components/AppHeader";
 import { KpiCard } from "@/components/KpiCard";
 import { Skeleton } from "@/components/Skeleton";
 import { AudienceProfile } from "@/components/tv/AudienceProfile";
-import { AIAdvisorChat } from "@/components/tv/AIAdvisorChat";
-import { generateChannelViewers, generateZappingData, exportToCSV } from "@/lib/mockData";
+import { ZappingSourceBars } from "@/components/tv/ZappingSourceBars";
+import { AdRecommendationPanel } from "@/components/tv/AdRecommendationPanel";
+import {
+  generateChannelViewers, generateZappingData, generateZappingSources, exportToCSV,
+} from "@/lib/mockData";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -37,6 +31,7 @@ function TvPage() {
   const [loading, setLoading] = useState(true);
   const [channels, setChannels] = useState(() => generateChannelViewers());
   const [zaps] = useState(() => generateZappingData());
+  const [zapSources] = useState(() => generateZappingSources());
   const currentHour = new Date().getHours();
 
   useEffect(() => {
@@ -74,7 +69,6 @@ function TvPage() {
           </button>
         </div>
 
-        {/* KPI bar */}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
           {loading ? (
             <>
@@ -84,36 +78,14 @@ function TvPage() {
             </>
           ) : (
             <>
-              <KpiCard
-                label="Total viewers live"
-                value={total.toLocaleString("en-US")}
-                trend={2.4}
-                icon={Eye}
-              />
-              <KpiCard
-                label="Most watched now"
-                value={top.name}
-                sub={`${top.viewers.toLocaleString("en-US")} viewers`}
-                icon={Tv}
-              />
-              <KpiCard
-                label="Peak zapping hour"
-                value={peakZap.hour}
-                sub={`${peakZap.zaps.toLocaleString("en-US")} zaps`}
-                icon={Zap}
-              />
-              <KpiCard
-                label="Avg viewing duration"
-                value="42m"
-                sub="per session"
-                trend={-1.2}
-                icon={Clock}
-              />
+              <KpiCard label="Total viewers live" value={total.toLocaleString("en-US")} trend={2.4} icon={Eye} />
+              <KpiCard label="Most watched now" value={top.name} sub={`${top.viewers.toLocaleString("en-US")} viewers`} icon={Tv} />
+              <KpiCard label="Peak zapping hour" value={peakZap.hour} sub={`${peakZap.zaps.toLocaleString("en-US")} zaps`} icon={Zap} />
+              <KpiCard label="Avg viewing duration" value="42m" sub="per session" trend={-1.2} icon={Clock} />
             </>
           )}
         </div>
 
-        {/* Charts row */}
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <div className="rounded-xl border border-border bg-card p-6">
             <div className="mb-4 flex items-center justify-between">
@@ -130,37 +102,12 @@ function TvPage() {
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={channels} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.18 0 0)" vertical={false} />
-                  <XAxis
-                    dataKey="name"
-                    tick={{ fill: "oklch(0.62 0 0)", fontSize: 11 }}
-                    axisLine={{ stroke: "oklch(0.18 0 0)" }}
-                    tickLine={false}
-                    angle={-15}
-                    textAnchor="end"
-                    height={60}
-                  />
-                  <YAxis
-                    tick={{ fill: "oklch(0.62 0 0)", fontSize: 11 }}
-                    axisLine={{ stroke: "oklch(0.18 0 0)" }}
-                    tickLine={false}
-                    tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`}
-                  />
-                  <Tooltip
-                    cursor={{ fill: "oklch(0.14 0 0)" }}
-                    contentStyle={{
-                      background: "oklch(0.11 0 0)",
-                      border: "1px solid oklch(0.2 0 0)",
-                      borderRadius: 8,
-                      fontSize: 12,
-                    }}
-                    formatter={(v: number) => [v.toLocaleString("en-US"), "Viewers"]}
-                  />
+                  <XAxis dataKey="name" tick={{ fill: "oklch(0.62 0 0)", fontSize: 11 }} axisLine={{ stroke: "oklch(0.18 0 0)" }} tickLine={false} angle={-15} textAnchor="end" height={60} />
+                  <YAxis tick={{ fill: "oklch(0.62 0 0)", fontSize: 11 }} axisLine={{ stroke: "oklch(0.18 0 0)" }} tickLine={false} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
+                  <Tooltip cursor={{ fill: "oklch(0.14 0 0)" }} contentStyle={{ background: "oklch(0.11 0 0)", border: "1px solid oklch(0.2 0 0)", borderRadius: 8, fontSize: 12 }} formatter={(v: number) => [v.toLocaleString("en-US"), "Viewers"]} />
                   <Bar dataKey="viewers" radius={[6, 6, 0, 0]} animationDuration={800}>
                     {channels.map((c, i) => (
-                      <Cell
-                        key={i}
-                        fill={c.viewers === maxViewers ? "oklch(0.62 0.22 25)" : "oklch(0.42 0.14 25)"}
-                      />
+                      <Cell key={i} fill={c.viewers === maxViewers ? "oklch(0.62 0.22 25)" : "oklch(0.42 0.14 25)"} />
                     ))}
                   </Bar>
                 </BarChart>
@@ -188,52 +135,25 @@ function TvPage() {
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.18 0 0)" vertical={false} />
-                  <XAxis
-                    dataKey="hour"
-                    tick={{ fill: "oklch(0.62 0 0)", fontSize: 11 }}
-                    axisLine={{ stroke: "oklch(0.18 0 0)" }}
-                    tickLine={false}
-                  />
-                  <YAxis
-                    tick={{ fill: "oklch(0.62 0 0)", fontSize: 11 }}
-                    axisLine={{ stroke: "oklch(0.18 0 0)" }}
-                    tickLine={false}
-                  />
-                  <Tooltip
-                    cursor={{ stroke: "oklch(0.3 0 0)", strokeDasharray: "3 3" }}
-                    contentStyle={{
-                      background: "oklch(0.11 0 0)",
-                      border: "1px solid oklch(0.2 0 0)",
-                      borderRadius: 8,
-                      fontSize: 12,
-                    }}
-                  />
-                  <ReferenceLine
-                    x={`${currentHour}h`}
-                    stroke="oklch(0.62 0.22 25)"
-                    strokeWidth={2}
-                    strokeDasharray="4 4"
-                    label={{ value: "NOW", fill: "oklch(0.62 0.22 25)", fontSize: 10, position: "top" }}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="zaps"
-                    stroke="oklch(0.62 0.22 25)"
-                    strokeWidth={2.5}
-                    dot={false}
-                    activeDot={{ r: 5, fill: "oklch(0.62 0.22 25)" }}
-                    fill="url(#zapGrad)"
-                    animationDuration={900}
-                  />
+                  <XAxis dataKey="hour" tick={{ fill: "oklch(0.62 0 0)", fontSize: 11 }} axisLine={{ stroke: "oklch(0.18 0 0)" }} tickLine={false} />
+                  <YAxis tick={{ fill: "oklch(0.62 0 0)", fontSize: 11 }} axisLine={{ stroke: "oklch(0.18 0 0)" }} tickLine={false} />
+                  <Tooltip cursor={{ stroke: "oklch(0.3 0 0)", strokeDasharray: "3 3" }} contentStyle={{ background: "oklch(0.11 0 0)", border: "1px solid oklch(0.2 0 0)", borderRadius: 8, fontSize: 12 }} />
+                  <ReferenceLine x={`${currentHour}h`} stroke="oklch(0.62 0.22 25)" strokeWidth={2} strokeDasharray="4 4" label={{ value: "NOW", fill: "oklch(0.62 0.22 25)", fontSize: 10, position: "top" }} />
+                  <Line type="monotone" dataKey="zaps" stroke="oklch(0.62 0.22 25)" strokeWidth={2.5} dot={false} activeDot={{ r: 5, fill: "oklch(0.62 0.22 25)" }} fill="url(#zapGrad)" animationDuration={900} />
                 </LineChart>
               </ResponsiveContainer>
             </div>
           </div>
         </div>
 
+        {/* Zapping source by hour */}
+        <ZappingSourceBars data={zapSources} />
+
+        {/* AI recommendation panel */}
+        <AdRecommendationPanel />
+
         <AudienceProfile />
       </main>
-      <AIAdvisorChat />
     </div>
   );
 }
