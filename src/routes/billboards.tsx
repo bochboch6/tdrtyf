@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { MapContainer, TileLayer, CircleMarker, Popup, useMapEvents } from "react-leaflet";
+import { MapContainer, TileLayer, CircleMarker, Popup } from "react-leaflet";
 import {
-  Camera, Car, Eye, Megaphone, Download, Trophy, Plus, X, MapPin,
+  Camera, Car, Eye, Megaphone, Download, Trophy, Plus, X,
   Sparkles, Bell, AlertTriangle, Activity, ArrowUpDown,
 } from "lucide-react";
 import { AppHeader } from "@/components/AppHeader";
