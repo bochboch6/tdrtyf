@@ -38,13 +38,14 @@ function MapClickCapture({ onPick }: { onPick: (lat: number, lng: number) => voi
 function BillboardsPage() {
   const [loading, setLoading] = useState(true);
   const [mode, setMode] = useState<Mode>("traffic");
-  const [billboards, setBillboards] = useState<Billboard[]>(() => generateBillboards());
+  const [billboards, setBillboards] = useState<Billboard[]>([]);
   const [selected, setSelected] = useState<Billboard | null>(null);
   const [showAdd, setShowAdd] = useState(false);
   const [sortKey, setSortKey] = useState<SortKey>("traffic");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
 
   useEffect(() => {
+    setBillboards(generateBillboards());
     const t = setTimeout(() => setLoading(false), 600);
     return () => clearTimeout(t);
   }, []);
