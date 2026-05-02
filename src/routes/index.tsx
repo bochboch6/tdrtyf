@@ -153,6 +153,9 @@ function TvPage() {
 
         {/* AI recommendation panel (now second) */}
         <AdRecommendationPanel />
+
+        {/* Campaign hit checker */}
+        <CampaignHitChecker medium="TV" />
       </main>
 
       {/* Floating AI assistant chatbot */}
