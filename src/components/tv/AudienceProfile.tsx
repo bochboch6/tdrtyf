@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
-import { generateAudienceProfile, TV_CHANNELS } from "@/lib/mockData";
+import { generateAudienceProfile, TV_CHANNELS, DAYS_OF_WEEK, type DayOfWeek } from "@/lib/mockData";
 import { Users } from "lucide-react";
 
 const AGE_COLORS = ["oklch(0.62 0.22 25)", "oklch(0.65 0.18 250)", "oklch(0.72 0.18 145)", "oklch(0.78 0.16 75)"];
@@ -55,12 +55,13 @@ function MiniPie({ title, data, colors }: { title: string; data: { name: string;
 
 export function AudienceProfile() {
   const [channel, setChannel] = useState(TV_CHANNELS[0]);
+  const [day, setDay] = useState<DayOfWeek>("Mon");
   const [hour, setHour] = useState(20);
-  const [profile, setProfile] = useState(() => generateAudienceProfile(channel, hour));
+  const [profile, setProfile] = useState(() => generateAudienceProfile(channel, hour, day));
 
   useEffect(() => {
-    setProfile(generateAudienceProfile(channel, hour));
-  }, [channel, hour]);
+    setProfile(generateAudienceProfile(channel, hour, day));
+  }, [channel, hour, day]);
 
   return (
     <div className="rounded-xl border border-border bg-card p-6">
@@ -71,12 +72,12 @@ export function AudienceProfile() {
           </div>
           <div>
             <h3 className="text-base font-semibold">Audience Profile</h3>
-            <p className="text-xs text-muted-foreground">Demographic breakdown by channel & hour</p>
+            <p className="text-xs text-muted-foreground">Demographic breakdown by channel, day & hour</p>
           </div>
         </div>
       </div>
 
-      <div className="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <div className="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-3">
         <div>
           <label className="mb-2 block text-xs font-medium uppercase tracking-wider text-muted-foreground">
             Channel
@@ -94,9 +95,25 @@ export function AudienceProfile() {
           </select>
         </div>
         <div>
+          <label className="mb-2 block text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            Day
+          </label>
+          <select
+            value={day}
+            onChange={(e) => setDay(e.target.value as DayOfWeek)}
+            className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus:border-primary focus:outline-none"
+          >
+            {DAYS_OF_WEEK.map((d) => (
+              <option key={d} value={d}>
+                {d}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
           <label className="mb-2 flex items-center justify-between text-xs font-medium uppercase tracking-wider text-muted-foreground">
             <span>Hour</span>
-            <span className="font-mono text-primary">{hour}h00</span>
+            <span className="font-mono text-primary">{hour}:00</span>
           </label>
           <input
             type="range"
@@ -118,9 +135,9 @@ export function AudienceProfile() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        <MiniPie title="Par âge" data={profile.age} colors={AGE_COLORS} />
-        <MiniPie title="Par sexe" data={profile.sex} colors={SEX_COLORS} />
-        <MiniPie title="Par revenu" data={profile.income} colors={INC_COLORS} />
+        <MiniPie title="By age" data={profile.age} colors={AGE_COLORS} />
+        <MiniPie title="By gender" data={profile.sex} colors={SEX_COLORS} />
+        <MiniPie title="By income" data={profile.income} colors={INC_COLORS} />
       </div>
     </div>
   );
