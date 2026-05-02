@@ -35,6 +35,21 @@ function BillboardsPage() {
   const [showAdd, setShowAdd] = useState(false);
   const [sortKey, setSortKey] = useState<SortKey>("traffic");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
+  const [posterAlert, setPosterAlert] = useState<{ id: number; billboard: Billboard; time: string } | null>(null);
+
+  useEffect(() => {
+    if (!posterAlert) return;
+    const t = setTimeout(() => setPosterAlert(null), 6000);
+    return () => clearTimeout(t);
+  }, [posterAlert]);
+
+  const handlePosterChange = (b: Billboard) => {
+    setPosterAlert({
+      id: Date.now(),
+      billboard: b,
+      time: new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }),
+    });
+  };
 
   useEffect(() => {
     setBillboards(generateBillboards());
