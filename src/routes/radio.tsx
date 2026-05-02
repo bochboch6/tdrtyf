@@ -24,11 +24,12 @@ export const Route = createFileRoute("/radio")({
 
 function RadioPage() {
   const [loading, setLoading] = useState(true);
-  const [data, setData] = useState(() => generateRadioData());
+  const [data, setData] = useState<ReturnType<typeof generateRadioData>>([]);
   const [selected, setSelected] = useState<string | null>(null);
   const [player, setPlayer] = useState<{ name: string; url: string } | null>(null);
 
   useEffect(() => {
+    setData(generateRadioData());
     const t = setTimeout(() => setLoading(false), 600);
     return () => clearTimeout(t);
   }, []);
