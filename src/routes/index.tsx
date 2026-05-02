@@ -29,12 +29,16 @@ export const Route = createFileRoute("/")({
 
 function TvPage() {
   const [loading, setLoading] = useState(true);
-  const [channels, setChannels] = useState(() => generateChannelViewers());
-  const [zaps] = useState(() => generateZappingData());
-  const [zapSources] = useState(() => generateZappingSources());
-  const currentHour = new Date().getHours();
+  const [channels, setChannels] = useState<ReturnType<typeof generateChannelViewers>>([]);
+  const [zaps, setZaps] = useState<ReturnType<typeof generateZappingData>>([]);
+  const [zapSources, setZapSources] = useState<ReturnType<typeof generateZappingSources>>([]);
+  const [currentHour, setCurrentHour] = useState(20);
 
   useEffect(() => {
+    setChannels(generateChannelViewers());
+    setZaps(generateZappingData());
+    setZapSources(generateZappingSources());
+    setCurrentHour(new Date().getHours());
     const t = setTimeout(() => setLoading(false), 600);
     return () => clearTimeout(t);
   }, []);
