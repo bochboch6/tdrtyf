@@ -327,7 +327,7 @@ function BillboardsPage() {
       )}
 
       {/* Add billboard modal */}
-      {showAdd && <AddBillboardModal onClose={() => setShowAdd(false)} onAdd={addBillboard} />}
+      {showAdd && <AddBillboardModal onClose={() => setShowAdd(false)} onAdd={addBillboard} forceCamera={mode === "cv"} />}
     </div>
   );
 }
