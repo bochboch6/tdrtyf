@@ -445,16 +445,17 @@ function CvDrawer({ billboard, onClose, onPosterChange }: { billboard: Billboard
 function AddBillboardModal({
   onClose,
   onAdd,
+  forceCamera = false,
 }: {
   onClose: () => void;
   onAdd: (b: Omit<Billboard, "pedestrians" | "detectionRate" | "status" | "size" | "lastUpdated">) => void;
+  forceCamera?: boolean;
 }) {
   const [type, setType] = useState<"digital" | "paper">("digital");
   const [name, setName] = useState("");
   const [lat, setLat] = useState("36.8");
   const [lng, setLng] = useState("10.18");
-  const [traffic, setTraffic] = useState("20000");
-  const [hasCamera, setHasCamera] = useState(false);
+  const [hasCamera, setHasCamera] = useState(forceCamera);
   const idRef = useRef(`BB-${Math.floor(Math.random() * 900 + 100)}`);
 
   const submit = (e: React.FormEvent) => {
@@ -467,7 +468,7 @@ function AddBillboardModal({
       lat: Number(lat),
       lng: Number(lng),
       type,
-      traffic: Number(traffic),
+      traffic: Math.floor(15000 + Math.random() * 25000),
       hasCamera,
     });
     onClose();
@@ -520,10 +521,6 @@ function AddBillboardModal({
               <label className="mb-1.5 block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Longitude</label>
               <input value={lng} onChange={(e) => setLng(e.target.value)} className="w-full rounded-md border border-border bg-background px-3 py-2 font-mono text-sm focus:border-primary focus:outline-none" />
             </div>
-          </div>
-          <div>
-            <label className="mb-1.5 block text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Daily traffic estimate</label>
-            <input value={traffic} onChange={(e) => setTraffic(e.target.value)} type="number" className="w-full rounded-md border border-border bg-background px-3 py-2 font-mono text-sm focus:border-primary focus:outline-none" />
           </div>
           <label className="flex items-center gap-2 text-sm">
             <input type="checkbox" checked={hasCamera} onChange={(e) => setHasCamera(e.target.checked)} className="accent-[oklch(0.62_0.22_25)]" />
