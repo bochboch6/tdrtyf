@@ -319,9 +319,35 @@ function BillboardsPage() {
         <BillboardRecommendation billboards={billboards} />
       </main>
 
+      {/* Top-of-page poster change toast */}
+      {posterAlert && (
+        <div className="fixed left-1/2 top-20 z-[500] w-[min(92vw,460px)] -translate-x-1/2 animate-fade-in">
+          <div className="flex items-start gap-3 rounded-lg border border-primary/60 bg-card/95 p-4 shadow-2xl shadow-primary/30 backdrop-blur">
+            <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground">
+              <AlertTriangle className="h-4 w-4" />
+            </div>
+            <div className="flex-1">
+              <div className="text-xs font-bold uppercase tracking-wider text-primary">Poster change detected</div>
+              <div className="mt-0.5 text-sm font-semibold text-foreground">
+                {posterAlert.billboard.id} · {posterAlert.billboard.name}
+              </div>
+              <div className="text-[11px] text-muted-foreground">
+                Computer vision flagged a creative swap at {posterAlert.time}
+              </div>
+            </div>
+            <button
+              onClick={() => setPosterAlert(null)}
+              className="rounded p-1 text-muted-foreground hover:bg-secondary hover:text-foreground"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* CV detection drawer */}
       {mode === "cv" && selected && selected.hasCamera && (
-        <CvDrawer billboard={selected} onClose={() => setSelected(null)} />
+        <CvDrawer billboard={selected} onClose={() => setSelected(null)} onPosterChange={handlePosterChange} />
       )}
 
       {/* Add billboard modal */}
