@@ -2,12 +2,10 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { MapContainer, TileLayer, CircleMarker, Popup } from "react-leaflet";
 import {
-  Camera, Car, Eye, Megaphone, Download, Trophy, Plus, X,
+  Camera, Car, Eye, Download, Trophy, Plus, X,
   Sparkles, AlertTriangle, Activity, ArrowUpDown,
 } from "lucide-react";
 import { AppHeader } from "@/components/AppHeader";
-import { KpiCard } from "@/components/KpiCard";
-import { Skeleton } from "@/components/Skeleton";
 import { generateBillboards, exportToCSV, type Billboard } from "@/lib/mockData";
 import { TUNISIA_MAP_PROPS, TUNISIA_TILE_PROPS } from "@/lib/tunisia";
 
