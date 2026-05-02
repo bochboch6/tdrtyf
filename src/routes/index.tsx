@@ -11,6 +11,7 @@ import { Skeleton } from "@/components/Skeleton";
 import { AudienceProfile } from "@/components/tv/AudienceProfile";
 import { AdRecommendationPanel } from "@/components/tv/AdRecommendationPanel";
 import { AIAdvisorChat } from "@/components/tv/AIAdvisorChat";
+import { CampaignHitChecker } from "@/components/CampaignHitChecker";
 import {
   generateChannelViewers, generateZappingData, exportToCSV,
 } from "@/lib/mockData";
