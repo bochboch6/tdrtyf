@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { MapContainer, TileLayer, CircleMarker, Popup } from "react-leaflet";
 import {
   Camera, Car, Eye, Megaphone, Download, Trophy, Plus, X,
-  Sparkles, Bell, AlertTriangle, Activity, ArrowUpDown,
+  Sparkles, AlertTriangle, Activity, ArrowUpDown,
 } from "lucide-react";
 import { AppHeader } from "@/components/AppHeader";
 import { KpiCard } from "@/components/KpiCard";
