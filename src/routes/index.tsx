@@ -8,10 +8,10 @@ import { Eye, Tv, Zap, Download } from "lucide-react";
 import { AppHeader } from "@/components/AppHeader";
 import { KpiCard } from "@/components/KpiCard";
 import { Skeleton } from "@/components/Skeleton";
-import { AudienceProfile } from "@/components/tv/AudienceProfile";
-import { AdRecommendationPanel } from "@/components/tv/AdRecommendationPanel";
-import { AIAdvisorChat } from "@/components/tv/AIAdvisorChat";
-import { CampaignHitChecker } from "@/components/CampaignHitChecker";
+import { RealAudienceProfile } from "@/components/tv/RealAudienceProfile";
+import { RealAdRecommendationPanel } from "@/components/tv/RealAdRecommendationPanel";
+import { RealAIAdvisorChat } from "@/components/tv/RealAIAdvisorChat";
+import { RealCampaignHitChecker } from "@/components/tv/RealCampaignHitChecker";
 import {
   generateChannelViewers, generateZappingData, exportToCSV,
 } from "@/lib/mockData";
@@ -149,17 +149,17 @@ function TvPage() {
         </div>
 
         {/* Audience profile (now first) */}
-        <AudienceProfile />
+        <RealAudienceProfile />
 
         {/* AI recommendation panel (now second) */}
-        <AdRecommendationPanel />
+        <RealAdRecommendationPanel />
 
         {/* Campaign hit checker */}
-        <CampaignHitChecker medium="TV" />
+        <RealCampaignHitChecker medium="TV" />
       </main>
 
       {/* Floating AI assistant chatbot */}
-      <AIAdvisorChat />
+      <RealAIAdvisorChat />
     </div>
   );
 }

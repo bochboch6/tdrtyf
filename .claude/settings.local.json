@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(New-Item -ItemType Directory -Path \"c:\\\\Users\\\\user\\\\Desktop\\\\competition\\\\enit_media\\\\proj\\\\media-pulse-tn\\\\src\\\\routes\\\\api\" -Force)",
+      "PowerShell(New-Item -ItemType Directory -Path \"c:\\\\Users\\\\user\\\\Desktop\\\\competition\\\\enit_media\\\\proj\\\\media-pulse-tn\\\\scripts\" -Force)",
+      "Bash(python scripts/SearchedArtical.py --keyword \"delice\" --event-time \"2025-05-01 10:00\" --geo \"TN\")"
+    ]
+  }
+}
