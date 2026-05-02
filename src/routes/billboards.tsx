@@ -26,14 +26,6 @@ export const Route = createFileRoute("/billboards")({
 type Mode = "traffic" | "cv";
 type SortKey = "id" | "name" | "type" | "traffic" | "pedestrians" | "status";
 
-function MapClickCapture({ onPick }: { onPick: (lat: number, lng: number) => void }) {
-  useMapEvents({
-    click(e) {
-      onPick(e.latlng.lat, e.latlng.lng);
-    },
-  });
-  return null;
-}
 
 function BillboardsPage() {
   const [loading, setLoading] = useState(true);
