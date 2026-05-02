@@ -340,30 +340,19 @@ function ModePill({ mode, onChange }: { mode: Mode; onChange: (m: Mode) => void 
   );
 }
 
-function CvDrawer({ billboard, onClose }: { billboard: Billboard; onClose: () => void }) {
+function CvDrawer({ billboard, onClose, onPosterChange }: { billboard: Billboard; onClose: () => void; onPosterChange: (b: Billboard) => void }) {
   const [pedCount, setPedCount] = useState(billboard.pedestrians);
   const [feedCount, setFeedCount] = useState(0);
-  const [alerts, setAlerts] = useState<{ id: number; text: string; time: string }[]>([
-    { id: 1, text: "Poster changed at 14:32", time: "14:32" },
-  ]);
 
   useEffect(() => {
     const id1 = setInterval(() => setPedCount((c) => c + 1), 3000);
     const id2 = setInterval(() => setFeedCount(Math.floor(2 + Math.random() * 9)), 1500);
+    // Occasional poster-change detection event
     const id3 = setInterval(() => {
-      const messages = [
-        "Detection spike detected",
-        "Camera focus auto-adjusted",
-        "Traffic surge: +18%",
-        "Lighting condition: optimal",
-      ];
-      setAlerts((a) => [
-        { id: Date.now(), text: messages[Math.floor(Math.random() * messages.length)], time: new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }) },
-        ...a,
-      ].slice(0, 6));
-    }, 9000);
+      if (Math.random() < 0.35) onPosterChange(billboard);
+    }, 12000);
     return () => { clearInterval(id1); clearInterval(id2); clearInterval(id3); };
-  }, [billboard.id]);
+  }, [billboard, onPosterChange]);
 
   return (
     <div className="fixed inset-y-0 right-0 z-[450] w-[380px] max-w-full overflow-y-auto border-l border-border bg-card shadow-2xl animate-fade-in">
@@ -429,27 +418,6 @@ function CvDrawer({ billboard, onClose }: { billboard: Billboard; onClose: () =>
               className="h-full rounded-full bg-gradient-to-r from-primary to-[oklch(0.78_0.18_75)] transition-all duration-700"
               style={{ width: `${billboard.detectionRate}%` }}
             />
-          </div>
-        </div>
-
-        {/* Alerts */}
-        <div className="rounded-lg border border-border bg-background/50 p-4">
-          <div className="mb-3 flex items-center gap-2">
-            <Bell className="h-4 w-4 text-[oklch(0.78_0.16_75)]" />
-            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Alerts
-            </span>
-          </div>
-          <div className="space-y-2">
-            {alerts.map((a) => (
-              <div key={a.id} className="flex items-start gap-2 rounded-md border border-[oklch(0.78_0.16_75)]/30 bg-[oklch(0.78_0.16_75)]/5 p-2 text-xs animate-fade-in">
-                <AlertTriangle className="mt-0.5 h-3 w-3 flex-shrink-0 text-[oklch(0.78_0.16_75)]" />
-                <div className="flex-1">
-                  <div>{a.text}</div>
-                  <div className="text-[10px] text-muted-foreground">{a.time}</div>
-                </div>
-              </div>
-            ))}
           </div>
         </div>
       </div>
