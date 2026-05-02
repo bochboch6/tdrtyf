@@ -200,12 +200,14 @@ function RadioPage() {
                       )}
                     </button>
                     {isOpen && <AudiencePills audience={s.audience} />}
-                    <button
-                      onClick={() => playStation(s.name)}
-                      className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-md border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
-                    >
-                      <Play className="h-3 w-3" /> 🎧 Listen Live
-                    </button>
+                    {isOpen && (
+                      <button
+                        onClick={() => playStation(s.name)}
+                        className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-md border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
+                      >
+                        <Play className="h-3 w-3" /> 🎧 Listen Live
+                      </button>
+                    )}
                   </div>
                 );
               })}
